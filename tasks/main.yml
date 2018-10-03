@@ -1,0 +1,62 @@
+---
+# tasks file for ansible-role-k8sHLF
+
+- name: stop docker daemon
+  command : systemctl stop docker
+  sudo: yes
+
+- name: create a docker daemon.json
+  file:
+    path: /etc/docker/daemon.json
+    state: touch
+    # sudo: yes
+
+# - name: write a docker daemon.json
+#   become: true
+#   lineinfile:
+#     path: /etc/docker/daemon.json
+#     line: "{
+#             \"dns\" : [\"10.96.0.10\", \"192.168.99.20\" ],
+#             \"dns-search\" : [ \"default.svc.cluster.local\", \"svc.cluster.local\"],
+#             \"dns-opts\": [\"timeout:2\", \"attempts:2\"],
+#             \"bip\" : \"10.244.0.1/24\",
+#             \"mtu\" : 1450,
+#             \"iptables\" : false,
+#             \"ip-masq\" : false,
+#             \"ip-forward\" : true
+#     }"
+
+- name: write a docker daemon.json
+  become: true
+  lineinfile:
+    path: /etc/docker/daemon.json
+    line: "{
+            \"dns\" : [\"10.96.0.10\", \"192.168.99.20\" ],
+            \"dns-search\" : [ \"default.svc.cluster.local\", \"svc.cluster.local\"],
+            \"dns-opts\": [\"timeout:2\", \"attempts:2\"],
+            \"iptables\" : false,
+            \"ip-masq\" : false,
+            \"ip-forward\" : true
+    }"
+    # sudo: yes
+
+# - name: read a docker daemon.json
+#   become: true
+#   command : cat /etc/docker/daemon.json
+#   sudo: yes
+
+- name: restart docker daemom
+  become: true
+  systemd:
+    daemon_reload : yes
+    name : docker
+
+- name: restart docker daemon
+  command : systemctl restart docker
+  sudo: yes
+
+
+# - name: Install prerequisites
+#   apt:
+#     name: apt-transport-https
+#     update_cache: yes
